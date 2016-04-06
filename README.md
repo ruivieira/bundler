@@ -1,9 +1,8 @@
 # bundler
 
-Web assets bundler
+Web assets bundler. Pre-alpha. API will break.
 
 ## Installation
-
 
 Add this to your application's `shard.yml`:
 
@@ -13,6 +12,13 @@ dependencies:
     github: ruivieira/bundler
 ```
 
+### Dependencies
+
+Minifying Javascript will depend on `uglify-js`. Install it with
+
+```
+npm install -g uglify-js
+```
 
 ## Usage
 
@@ -35,4 +41,4 @@ require "bundler"
 
 ## Contributors
 
-- [[ruivieira]](https://github.com/ruivieira) Rui Vieira - creator, maintainer
+- [ruivieira](https://github.com/ruivieira) (Rui Vieira) - creator, maintainer
