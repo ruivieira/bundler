@@ -3,6 +3,92 @@ require "colorize"
 
 module Bundler
 
+  enum SourceType
+    Javascript
+    Coffeescript
+    Typescript
+    LESS
+    CSS
+  end
+
+  abstract class Assets
+    getter file, source_type
+
+    def initialize(@file : String, @source_type : SourceType)
+    end
+
+    def compile()
+    end
+
+    def collect() : String
+      return @file
+    end
+  end
+
+  class JavascriptAsset < Assets
+    def initialize(@file : String)
+      super(@file, SourceType::Javascript)
+    end
+  end
+
+  class TypescriptAsset < Assets
+    def initialize(@file : String, @dest : String)
+      super(@file, SourceType::Typescript)
+    end
+
+    def compile()
+      `tsc #{@file} --outFile #{@dest}`
+    end
+
+    def collect() : String
+      return @dest
+    end
+  end
+
+  class CSSAsset < Assets
+    def initialize(@file : String)
+      super(@file, SourceType::CSS)
+    end
+  end
+
+  class CoffeescriptAsset < Assets
+    def initialize(@file : String, @dest : String)
+      super(@file, SourceType::Coffeescript)
+    end
+  end
+
+
+  class Bundle
+    def initialize(@name : String, @assets : Array(Assets), @dest : String)
+    end
+
+    def build()
+      unique = @assets.uniq {|asset| asset.file }
+
+      # compile all assets
+      unique.each {|asset| asset.compile() }
+
+      # javascripts
+      javascripts = unique.select {|asset|
+        [SourceType::Javascript, SourceType::Typescript].includes? asset.source_type
+      }
+      # glue everything together
+      js_names = javascripts.map{|asset| asset.collect()}
+      `cat #{js_names.join(" ")} > #{@dest}/#{@name}.js`
+
+      # CSS
+      css =  unique.select {|asset|
+        [SourceType::CSS].includes? asset.source_type
+      }
+      # glue CSS together
+      css_names = css.map{|asset| asset.collect()}
+      if (!css_names.empty?)
+        `cat #{css_names.join(" ")} > #{@dest}/#{@name}.css`
+      end
+    end
+
+  end
+
   def self.log(context : String, message : String)
     puts("[#{context.colorize(:green)}\t] #{message}")
   end
