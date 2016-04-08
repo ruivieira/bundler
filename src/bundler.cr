@@ -59,6 +59,22 @@ module Bundler
 
 
   class Bundle
+
+    getter assets
+
+    def self.create(name : String, assets : Array(Assets), dest : String)
+      return Bundle.new name, assets, dest
+    end
+
+    def self.create(name : String, bundle : Bundle, dest : String)
+      return self.create(name, [bundle], dest)
+    end
+
+    def self.create(name : String, bundles : Array(Bundle), dest : String)
+      assets = bundles.map {|b| b.assets}.flatten
+      return self.create(name, assets, dest)
+    end
+
     def initialize(@name : String, @assets : Array(Assets), @dest : String)
     end
 

@@ -65,5 +65,24 @@ describe Bundler do
     (js_count.should eq(3)) && (css_count.should eq(6) )
   end
 
+  it "should create a Bundle based on another Bundle" do
+    dst = "#{current}/dest"
+    assets1 = [
+      Bundler::Js.new("#{current}/src/test1.js"),
+      Bundler::Js.new("#{current}/src/test2.js")
+    ]
+    bundle1 = Bundler::Bundle.create("bundle1", assets1, dst)
+
+    assets2 = [
+      Bundler::Js.new("#{current}/src/test1.js"),
+      Bundler::Css.new("#{current}/src/test4.css")
+    ]
+    bundle2 = Bundler::Bundle.create("bundle2", assets2, dst)
+
+    bundle = Bundler::Bundle.create "final", [bundle1, bundle2], dst
+    bundle.build()
+
+  end
+
 
 end
