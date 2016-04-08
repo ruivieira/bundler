@@ -1,6 +1,8 @@
 # bundler
 
-Web assets bundler. Pre-alpha. API will break.
+Web assets bundler for Crystal. 
+
+(Pre-alpha. API will break.)
 
 ## Installation
 
@@ -27,6 +29,45 @@ npm install -g uglify-js
 require "bundler"
 ```
 
+### Create a simple Bundle
+
+```crystal
+bootstrap = [
+	Bundler::Js.new("assets/bootstrap/js/bootstrap.js"),
+    Bundler::Css.new("assets/bootstrap/css/bootstrap.css")
+]
+
+jquery = [Bundler::Js.new(assets/"jquery-2.1.4.js")]
+
+bundle = Bundler::Bundle.create("blog", 
+   bootstrap + jquery,
+   "public/js")
+```
+
+This will create a bundled `blog.css` and `blog.js` under `public/`.
+
+### Combining `Bundle`s
+
+Let's say your blog uses Bootstrap for layout and Prism for syntax highlighting.
+
+```crystal
+bootstap = Bundler::Bundle.create("bootstrap", 
+	[Bundler::Js.new("assets/bootstrap/js/bootstrap.js"),
+    Bundler::Css.new("assets/bootstrap/css/bootstrap.css")],
+   "public")
+
+prism = Bundler::Bundle.create("prism", 
+	[Bundler::Js.new("assets/prism.js"),
+    Bundler::Css.new("assets/prism.css")],
+   "prism")
+```
+
+You can create a `blog` bundle. This will output `blog.css` and `blog.js` ignoring the initial bundle's outputs.
+
+```crystal
+blog = Bundler::Bundle.create("blog", bootstrap + prism, "public")
+# creates public/blog.{css, js}
+```
 
 ## Development
 

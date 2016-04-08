@@ -15,6 +15,9 @@ module Bundler
     getter file, source_type
 
     def initialize(@file : String, @source_type : SourceType)
+      if (!File.exists?(@file))
+        raise Exception.new("Source #{@file} not found")
+      end
     end
 
     def compile()

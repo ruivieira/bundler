@@ -9,12 +9,12 @@ current = "#{Dir.current}/spec"
 describe Bundler do
 
   it "Javascript asset correct type" do
-    js = Bundler::Js.new "test.js"
+    js = Bundler::Js.new "#{current}/src/test1.js"
     js.source_type.should eq(Bundler::SourceType::Javascript)
   end
 
   it "Javascript asset correct name" do
-    name = "test.js"
+    name = "#{current}/src/test1.js"
     js = Bundler::Js.new name
     js.collect().should eq(name)
   end
