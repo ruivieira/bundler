@@ -25,13 +25,13 @@ module Bundler
     end
   end
 
-  class JavascriptAsset < Assets
+  class Js < Assets
     def initialize(@file : String)
       super(@file, SourceType::Javascript)
     end
   end
 
-  class TypescriptAsset < Assets
+  class Tsc < Assets
     def initialize(@file : String, @dest : String)
       super(@file, SourceType::Typescript)
     end
@@ -45,13 +45,13 @@ module Bundler
     end
   end
 
-  class CSSAsset < Assets
+  class Css < Assets
     def initialize(@file : String)
       super(@file, SourceType::CSS)
     end
   end
 
-  class CoffeescriptAsset < Assets
+  class Coffee < Assets
     def initialize(@file : String, @dest : String)
       super(@file, SourceType::Coffeescript)
     end
