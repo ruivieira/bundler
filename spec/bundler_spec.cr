@@ -23,7 +23,7 @@ describe Bundler do
     assets = [
       Bundler::Js.new("#{current}/src/test1.js"),
       Bundler::Js.new("#{current}/src/test2.js")]
-    bundle = Bundler::Bundle.new "bundle1", assets, "#{current}/dest"
+    bundle = Bundler::Bundle.create "bundle1", assets, "#{current}/dest"
     bundle.build()
     # should have two lines
     count_lines("#{current}/dest/bundle1.js").should eq(2)
@@ -34,7 +34,7 @@ describe Bundler do
       Bundler::Js.new("#{current}/src/test1.js"),
       Bundler::Js.new("#{current}/src/test1.js"),
       Bundler::Js.new("#{current}/src/test2.js")]
-    bundle = Bundler::Bundle.new "bundle1", assets, "#{current}/dest"
+    bundle = Bundler::Bundle.create "bundle1", assets, "#{current}/dest"
     bundle.build()
     count_lines("#{current}/dest/bundle1.js").should eq(2)
   end
@@ -44,7 +44,7 @@ describe Bundler do
       Bundler::Js.new("#{current}/src/test1.js"),
       Bundler::Tsc.new("#{current}/src/test3.ts", "#{current}/src/test3.js"),
       Bundler::Js.new("#{current}/src/test2.js")]
-    bundle = Bundler::Bundle.new "bundle1", assets, "#{current}/dest"
+    bundle = Bundler::Bundle.create "bundle1", assets, "#{current}/dest"
     bundle.build()
     count_lines("#{current}/dest/bundle1.js").should eq(3)
   end
@@ -58,7 +58,7 @@ describe Bundler do
       Bundler::Css.new("#{current}/src/test5.css"),
       Bundler::Css.new("#{current}/src/test4.css"),
       Bundler::Js.new("#{current}/src/test2.js")]
-    bundle = Bundler::Bundle.new "bundle2", assets, "#{current}/dest"
+    bundle = Bundler::Bundle.create "bundle2", assets, "#{current}/dest"
     bundle.build()
     js_count = count_lines("#{current}/dest/bundle2.js")
     css_count = count_lines("#{current}/dest/bundle2.css")
@@ -81,8 +81,41 @@ describe Bundler do
 
     bundle = Bundler::Bundle.create "final", [bundle1, bundle2], dst
     bundle.build()
-
   end
+
+  it "should compile coffeescript in mixed bundle" do
+      assets = [
+        Bundler::Js.new("#{current}/src/test1.js"),
+        Bundler::Js.new("#{current}/src/test1.js"),
+        Bundler::Tsc.new("#{current}/src/test3.ts", "#{current}/src/test3.js"),
+        Bundler::Css.new("#{current}/src/test4.css"),
+        Bundler::Css.new("#{current}/src/test5.css"),
+        Bundler::Css.new("#{current}/src/test4.css"),
+        Bundler::Js.new("#{current}/src/test2.js"),
+        Bundler::Coffee.new("#{current}/src/test_coffee.coffee", "#{current}/src/test_coffee.js")]
+      bundle = Bundler::Bundle.create "bundle3", assets, "#{current}/dest"
+      bundle.build()
+      js_count = count_lines("#{current}/dest/bundle3.js")
+      css_count = count_lines("#{current}/dest/bundle3.css")
+      (js_count.should eq(9)) && (css_count.should eq(6) )
+    end
+
+    it "should minify output JS" do
+      assets = [
+        Bundler::Js.new("#{current}/src/test1.js"),
+        Bundler::Js.new("#{current}/src/test1.js"),
+        Bundler::Tsc.new("#{current}/src/test3.ts", "#{current}/src/test3.js"),
+        Bundler::Css.new("#{current}/src/test4.css"),
+        Bundler::Css.new("#{current}/src/test5.css"),
+        Bundler::Css.new("#{current}/src/test4.css"),
+        Bundler::Js.new("#{current}/src/test2.js"),
+        Bundler::Coffee.new("#{current}/src/test_coffee.coffee", "#{current}/src/test_coffee.js")]
+      bundle = Bundler::Bundle.create "bundle4", assets, "#{current}/dest", minify_js: true
+      bundle.build()
+      js_count = count_lines("#{current}/dest/bundle4.min.js")
+      js_count.should eq(0)
+    end
+
 
 
 end

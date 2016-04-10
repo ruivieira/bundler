@@ -21,6 +21,14 @@ Minifying Javascript will depend on `uglify-js`. Install it with
 ```
 npm install -g uglify-js
 ```
+Compiling Coffeescript and Typescript will depend on the respective npm packages
+
+```
+npm install -g coffee-script
+npm install -g typescript
+
+```
+
 
 ## Usage
 
@@ -68,6 +76,26 @@ You can create a `blog` bundle. This will output `blog.css` and `blog.js` ignori
 blog = Bundler::Bundle.create("blog", bootstrap + prism, "public")
 # creates public/blog.{css, js}
 ```
+
+### Minifying output
+
+Given a mixed bundle
+
+```crystal
+  assets = [
+        Bundler::Js.new("test1.js"),
+        Bundler::Js.new("test1.js"),
+        Bundler::Tsc.new("test3.ts", "test3.js"),
+        Bundler::Css.new("test4.css"),
+        Bundler::Css.new("test5.css"),
+        Bundler::Css.new("test4.css"),
+        Bundler::Js.new("test2.js"),
+        Bundler::Coffee.new("test_coffee.coffee", "test_coffee.js")]
+      bundle = Bundler::Bundle.create "bundle", assets, "dest", minify_js: true
+      bundle.build()
+```
+
+This will create `bundle.css` and `bundle.{js, min.js}`. Note that duplicate (with respect to source file name) assets will just be included once.
 
 ## Development
 

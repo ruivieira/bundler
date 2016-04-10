@@ -58,6 +58,15 @@ module Bundler
     def initialize(@file : String, @dest : String)
       super(@file, SourceType::Coffeescript)
     end
+
+    def compile()
+      `coffee -b -c -o #{File.dirname(@dest)} #{@file}`
+    end
+
+    def collect() : String
+      return @dest
+    end
+
   end
 
 
@@ -65,20 +74,20 @@ module Bundler
 
     getter assets
 
-    def self.create(name : String, assets : Array(Assets), dest : String)
-      return Bundle.new name, assets, dest
+    def self.create(name : String, assets : Array(Assets), dest : String, minify_js : Bool = false)
+      return Bundle.new name, assets, dest, minify_js
     end
 
-    def self.create(name : String, bundle : Bundle, dest : String)
-      return self.create(name, [bundle], dest)
+    def self.create(name : String, bundle : Bundle, dest : String, minify_js : Bool = false)
+      return self.create(name, [bundle], dest, minify_js)
     end
 
-    def self.create(name : String, bundles : Array(Bundle), dest : String)
+    def self.create(name : String, bundles : Array(Bundle), dest : String, minify_js : Bool = false)
       assets = bundles.map {|b| b.assets}.flatten
-      return self.create(name, assets, dest)
+      return self.create(name, assets, dest, minify_js)
     end
 
-    def initialize(@name : String, @assets : Array(Assets), @dest : String)
+    def initialize(@name : String, @assets : Array(Assets), @dest : String, @minify_js : Bool)
     end
 
     def build()
@@ -89,11 +98,19 @@ module Bundler
 
       # javascripts
       javascripts = unique.select {|asset|
-        [SourceType::Javascript, SourceType::Typescript].includes? asset.source_type
+        [SourceType::Javascript, SourceType::Typescript, SourceType::Coffeescript].includes? asset.source_type
       }
       # glue everything together
       js_names = javascripts.map{|asset| asset.collect()}
-      `cat #{js_names.join(" ")} > #{@dest}/#{@name}.js`
+      if (!js_names.empty?)
+        `cat #{js_names.join(" ")} > #{@dest}/#{@name}.js`
+
+        # should we minify the output?
+        if @minify_js
+          `uglifyjs #{@dest}/#{@name}.js -o #{@dest}/#{@name}.min.js`
+        end
+      end
+
 
       # CSS
       css =  unique.select {|asset|
